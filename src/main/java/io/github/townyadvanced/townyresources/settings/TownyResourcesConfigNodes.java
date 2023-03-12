@@ -7,10 +7,6 @@ public enum TownyResourcesConfigNodes {
 			"version.version",
 			"",
 			"# This is the current version.  Please do not edit."),
-	LANGUAGE(
-			"language",
-			"english.yml",
-			"# The language file you wish to use"),
 	ENABLED(
 			"enabled",
 			"true",
@@ -154,6 +150,12 @@ public enum TownyResourcesConfigNodes {
 			"# 1 - The name of the category (used for messaging)",
 			"# 2-  The daily limit per player (in stacks)",
 			"# 3-  The list of materials in the category"),
+	RESOURCE_EXTRACTION_LIMITS_UNBREAKABLES(
+			"resource_extraction_limits.unbreakables",
+			"ANCIENT_DEBRIS",
+			"",
+			"# A list of blocks which cannot be broken when the player hits the extraction limit for this type.",
+			"# Ex: unbreakables: ANCIENT_DEBRIS,DIAMOND_BLOCK"),
 	TOWN_RESOURCES(
 			"town_resources",
 			"",
@@ -298,7 +300,19 @@ public enum TownyResourcesConfigNodes {
 			"# 4-  The list of materials in the category",
 			"# ",
 			"# The default values give a weight of 200 to strategic resources (coal, iron etc.), and 100 to most non-strategic resources. (wheat, quartz etc.)",
-			"# This gives each survey approx. 30% chance to discover a strategic resources, and a 70% to discover a non-strategic resource."),
+			"# This gives each survey approx. 30% chance to discover a strategic resources, and a 70% to discover a non-strategic resource.",
+			"# ",
+			"# This list supports Slimefun, MythicMobs and MMOItems items as well. When entering an MMOItem use the TYPE:ID format,",
+			"# ie: SWORD:CUTLASS where TownyResources expects a material."),
+	TOWN_RESOURCES_OFFERS_MATERIALS_WITH_NON_DYNAMIC_AMMOUNTS(
+			"town_resources.offers.categories_with_fixed_amounts",
+			"somematerial,someitem",
+			"",
+			"# This list is used for Offers materials which you do not want to have dynamic amounts set.",
+			"# Ie: the amounts that are set in the above offers.categories sections are exactly how many each town will receive, every time.",
+			"# Materials put into this list, will not have their amounts modified by the Town's Town_Level resourceProductionModifier (in the Towny config,)",
+			"# or by the productivity_percentage_per_resource_level settings in this config.",
+			"# You may find it useful for controlling very valuable materials or custom items from Slimefun, MythicMobs or MMOItems."),
 	TOWN_RESOURCES_LANGUAGE(
 			"town_resources.language",
 			"",

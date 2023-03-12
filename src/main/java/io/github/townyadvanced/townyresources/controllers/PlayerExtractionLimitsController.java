@@ -5,13 +5,13 @@ import com.palmergames.bukkit.towny.TownyUniverse;
 import com.palmergames.bukkit.towny.exceptions.NotRegisteredException;
 import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.TownBlock;
+import com.palmergames.bukkit.towny.object.Translatable;
 import io.github.townyadvanced.townyresources.TownyResources;
 import io.github.townyadvanced.townyresources.metadata.BypassEntries;
 import io.github.townyadvanced.townyresources.metadata.TownyResourcesResidentMetaDataController;
 import io.github.townyadvanced.townyresources.objects.CategoryExtractionRecord;
 import io.github.townyadvanced.townyresources.objects.ResourceExtractionCategory;
 import io.github.townyadvanced.townyresources.settings.TownyResourcesSettings;
-import io.github.townyadvanced.townyresources.settings.TownyResourcesTranslation;
 import io.github.townyadvanced.townyresources.util.ActionBarUtil;
 import io.github.townyadvanced.townyresources.util.TownyResourcesMessagingUtil;
 import org.bukkit.Bukkit;
@@ -177,12 +177,12 @@ public class PlayerExtractionLimitsController {
             CategoryExtractionRecord categoryExtractionRecord = getCategoryExtractionRecord(playerExtractionRecord, drop.getType());                                            
                  
             /* 
-             * If player is at the limit, cancel the drop (except if ANCIENT_DEBRIS, then cancel the whole break).
+             * If player is at the limit, cancel the drop (except if ANCIENT_DEBRIS or other blocks that are considered unbreakable, then cancel the whole break).
              *
              * If player is not at the limit, add extracted amount to record.                    
              */
             if(categoryExtractionRecord.isExtractionLimitReached()) {
-                if(drop.getType() == Material.ANCIENT_DEBRIS) {
+                if (TownyResourcesSettings.isUnbreakableWhenExtractionLimitHit(drop.getType().name())) {
                     event.setCancelled(true);                    
                 } else {
                     event.setDropItems(false);                    
@@ -401,9 +401,9 @@ public class PlayerExtractionLimitsController {
 
     private static void sendLimitReachedWarningMessage(Player player, CategoryExtractionRecord categoryExtractionRecord) {
         if(System.currentTimeMillis() > categoryExtractionRecord.getNextLimitWarningTime()) {
-            String errorString = TownyResourcesTranslation.of("msg_error_daily_extraction_limit_reached",
-                    categoryExtractionRecord.getTranslatedCategoryName(), 
-                    categoryExtractionRecord.getResourceExtractionCategory().getCategoryExtractionLimitItems());
+            String errorString = Translatable.of("townyresources.msg_error_daily_extraction_limit_reached",
+                    categoryExtractionRecord.getTranslatedCategoryName(player), 
+                    categoryExtractionRecord.getResourceExtractionCategory().getCategoryExtractionLimitItems()).forLocale(player);
             //Send temporary action bar message
             ActionBarUtil.sendActionBarErrorMessage(player, errorString);
             //Send longer-lasting chat message
@@ -478,7 +478,7 @@ public class PlayerExtractionLimitsController {
             //Clear any records which are in memory.
             allPlayerExtractionRecords.clear();
             //Send global message            
-            TownyResourcesMessagingUtil.sendGlobalMessage(TownyResourcesTranslation.of("daily_extraction_limits_reset"));
+            TownyResourcesMessagingUtil.sendGlobalMessage(Translatable.of("townyresources.daily_extraction_limits_reset"));
         }
     }
 

@@ -6,12 +6,13 @@ import com.palmergames.bukkit.towny.TownyUniverse;
 import com.palmergames.bukkit.towny.object.Government;
 import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Town;
+import com.palmergames.bukkit.towny.object.Translatable;
 import io.github.townyadvanced.townyresources.TownyResources;
 import io.github.townyadvanced.townyresources.metadata.TownyResourcesGovernmentMetaDataController;
 import io.github.townyadvanced.townyresources.objects.ResourceOfferCategory;
 import io.github.townyadvanced.townyresources.settings.TownyResourcesSettings;
-import io.github.townyadvanced.townyresources.settings.TownyResourcesTranslation;
 import io.github.townyadvanced.townyresources.util.TownyResourcesMessagingUtil;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -199,16 +200,18 @@ public class TownResourceProductionController {
         Map<String, Integer> production = new HashMap<>();
         String material;
         double baseProducedAmount;
+        double bonusesPerResourceLevel;
         int finalProducedAmount;
 
         for(int i = 0; i < discoveredResources.size(); i++) {
             material = discoveredResources.get(i);
             //If town does not meet the min level, produced amt is zero
-            if(TownySettings.calcTownLevelId(town) < TownyResourcesSettings.getProductionTownLevelRequirementPerResourceLevel().get(i)) {
+            if(town.getLevel() < TownyResourcesSettings.getProductionTownLevelRequirementPerResourceLevel().get(i)) {
                 finalProducedAmount = 0;
             } else {
                 baseProducedAmount = allOffers.get(material).getBaseAmountItems();
-                finalProducedAmount = (int)((baseProducedAmount * normalizedBonusesPerResourceLevel.get(i) * cutNormalized) + 0.5);
+                bonusesPerResourceLevel = TownyResourcesSettings.isNonDynamicAmountMaterial(material) ? 1.0 : normalizedBonusesPerResourceLevel.get(i);
+                finalProducedAmount = (int)((baseProducedAmount * bonusesPerResourceLevel * cutNormalized) + 0.5);
             }
             production.put(material, finalProducedAmount);
         }
@@ -235,7 +238,7 @@ public class TownResourceProductionController {
             if(produceResourcesForOneGovernment(town))
                 numProducingTowns++;
         }
-        TownyResourcesMessagingUtil.sendGlobalMessage(TownyResourcesTranslation.of("production.message", numProducingTowns));        
+        TownyResourcesMessagingUtil.sendGlobalMessage(Translatable.of("townyresources.production.message", numProducingTowns));        
     }
 
     /**
@@ -272,10 +275,14 @@ public class TownResourceProductionController {
             String resource;
             int quantityToProduce;
             int currentQuantity;
+            double townLevelModifier;
             int storageLimit;
             for(Map.Entry<String, Integer> townProductionEntry: townDailyProduction.entrySet()) {
                 resource = townProductionEntry.getKey();
-                quantityToProduce =townProductionEntry.getValue();
+                townLevelModifier = government instanceof Town town ? TownySettings.getTownLevel(town).resourceProductionModifier() : 1.0;
+				if (TownyResourcesSettings.isNonDynamicAmountMaterial(resource))
+					townLevelModifier = 1.0;
+                quantityToProduce = (int) (townProductionEntry.getValue() * townLevelModifier);
                 if(quantityToProduce == 0)
                     continue;
                 if(availableResources.containsKey(resource)) {

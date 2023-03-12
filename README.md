@@ -17,7 +17,7 @@ The plugin also has an optional feature to protect resource value, via daily pla
 1. Download the latest *TownyResources* Jar from [here](https://github.com/TownyAdvanced/TownyResources/releases), and drop it into your plugins folder.
 2. Restart your server.
 3. Edit the *TownyResources* config.yml file, and set `surveys > enabled` to `false` (*this stops players from discovering resources until your settings are ready*).
-4. Run `/tra reload`.
+4. Run `/ta resources reload`.
 5. Edit the *TownyResources* config.yml file, and change any settings you would like.
    - Note: Do not add Eggs, Honeycomb, or Honey Bottle to the daily-limits list, as these limit types are not yet operational.
 6. Edit your townyperms.yml file, and add the following perms:
@@ -57,9 +57,16 @@ The plugin also has an optional feature to protect resource value, via daily pla
       Data: 0
       Display: '&3Example Item 2'
         ```
-11. If you want to translate material names into a non-english language, first ensure you have the [*LangUtils*](https://ci.nyaacat.com/job/LanguageUtils/job/1.17/) plugin installed, then set your preferred language in the *TownyResources* Config.yml file.
-12. Edit the *TownyResources* config.yml file, and set `surveys > enabled` to `true`.
-13. Run `/tra reload`, then `/ta reload`.
+11. If you want to use [*MMOItems*](https://www.spigotmc.org/resources/mmoitems-premium.39267/) plugin with *TownyResources*:
+    - Town Production:
+    <br>You can add *MMOItems* items to the offers list, simply by using the following format: TYPE:ID. Example:
+    ```
+    categories: '{mmo_items, 100, 0.015625, SWORD:CUTLASS}'
+    ```
+    The above example gives one cutlass per day to a town.
+12. If you want to translate material names into a non-english language, first ensure you have the [*LangUtils*](https://ci.nyaacat.com/job/LanguageUtils/job/1.17/) plugin installed, then set your preferred language in the *TownyResources* Config.yml file.
+13. Edit the *TownyResources* config.yml file, and set `surveys > enabled` to `true`.
+14. Run `/ta resources reload`, then `/ta reload`.
 # Player Guide
 ### Town Production
 ###### Information
@@ -74,7 +81,7 @@ The plugin also has an optional feature to protect resource value, via daily pla
   - Survey **2**: Reveals Level **2** Resource. Cost **1000**. Minimum num townblocks **50**.
   - Survey **3**: Reveals Level **3** Resource. Cost **5000**. Minumum num townblocks **100**.
   - Survey **4**: Reveals Level **4** Resource. Cost **20000**. Minimum num townblocks **200**.  
-- To do a Survey, enter the target town and run: `/tr survey`.
+- To do a Survey, enter the target town and run: `/t resources survey`.
 - If the Survey succeeds, a global success message will be generated. Example:
   > Goosius1 has discovered coal deposits at Rome!. Daily Production: 64 Coal.
 ###### Daily Production
@@ -93,7 +100,7 @@ The plugin also has an optional feature to protect resource value, via daily pla
   <br> > Daily Production: 64 Oak Log, 0 Emerald
 - For each resource, a town can store a maximum of 5x the production amount. When stores are full, subsequent production is lost.                          
 ###### Collecting Town Resources
-- To collect town resources, as a mayor/assistant/treasurer, enter your town and run `/tr towncollect`
+- To collect town resources, as a mayor/assistant/treasurer, enter your town and run `/t resources collect`
 - The available resources will then be dropped at your position.
 ### Nation Production
 ###### Information
@@ -104,7 +111,7 @@ The plugin also has an optional feature to protect resource value, via daily pla
 ###### Daily Production
 - If a town belongs to, or is occupied by, a nation, then 50% of the town production is diverted to the nation.
 ###### Collecting Nation Resources
-- To collect nation resources, as a king/assistant/treasurer, enter your capital and run `/tr nationcollect`
+- To collect nation resources, as a king/assistant/treasurer, enter your capital and run `/n collectresources`
 - The available resources will then be dropped at your position.
 ### Daily Extraction Limits
 ###### Resource Categories
@@ -144,9 +151,9 @@ The plugin also has an optional feature to protect resource value, via daily pla
 - Daily Extraction Limits
   - Daily Extraction Limits are configured in the *TownyResources* config.yml file.
 ###### Commands
-- `/tra reload` - Reload TownyResouces.
-- `/tra bypass` - Turns on and off bypass limits for your player.
-- `/tra reroll_all_resources` - Reroll all already-discovered town resources.
+- `/ta resources reload` - Reload TownyResouces.
+- `/ta resources bypass` - Turns on and off bypass limits for your player.
+- `/ta resources reroll_all_resources` - Reroll all already-discovered town resources.
 
 # F.A.Q:
 ###### Question: 
@@ -170,17 +177,10 @@ How will *TownyResources* benefit my server ?
 5. Assists **Roleplaying**
     - By giving each town a unique "signature" set of resources, this helps to develop the character of each town.
 6. Improves the [***SiegeWar***](https://github.com/TownyAdvanced/SiegeWar) experience, by adding **a new non-toxic reason for war**: Capturing Resources.
-   - There are surprisingly few non-toxic reasons to start a war in *SiegeWar*:
-     - Resources: **NO**, because sieging does not provide resources. 
-     - Equipment: **NO**, because SiegeWar does not allow soldiers to steal equipment from killed enemy soldiers (*for muliple important reasons as explained [here](https://github.com/TownyAdvanced/SiegeWar/wiki/Siege-War-FAQ)*).
-     - Full Territorial Control: **NO**, because sieging does not provide full territorial control of occupied towns (*i.e. block breaking/placing etc.*). 
-     - Roleplaying: **NO**, because most players are not roleplaying to any reasonable standard (*making new characters, adopting new personalities while in game, separating in-game & out-of-game conversations, following character-driven story arcs within the gameworld etc.)*.  
-     - Personal: **NO**, because although wars can and do start for this reason, it is generally not good, because it can create toxicity.
-     - Automatically-Assigned Military Objectives: **NO**, because SiegeWar does not have this type of feature.
-     - PVP: **PARTIAL**. PVP is a fine reason for fighting in games like *Call-of-Duty* or *Battlefield*, however in *Minecraft-Towny*, it often upsets players who are trying to treat the game as strategy and/or roleplay-lite, as it "breaks their bubble".
-     - Victory Rewards: **PARTIAL**. The rewards of victory are limited to a one-time plunder money steal, climbing the `\n list`, coloring the map, and achieving a higher nation claims bonus. This set of rewards has some value, but is often regarded by players as less satifying & less useful than the acquisition of material resources.    
-   - *TownyResources* fixes this problem by turning Resources into a viable, non-toxic, reason to start a war. 
-      - The wisdom of this is demonstrated by the success of the *Civilization* series of games, which also use generated-terrain & sandbox geopolitical strategy, and in which: 
+   - Vanilla SiegeWar provides relatively few rewards for victorious attackers - a one-time plunder money steal, climbing the `\n list`, coloring the map, and achieving a higher nation claims bonus
+   - Some attacking players may feel that this is not quite enough, that wars 'pointless'; and yet giving them more spoils (e.g. money, sets) would usually result in more punishment for the defender. Although players may selfishly seek to take everything from defeated opponents, clever server owners recognize that this is not a sustainable pattern for the server.
+   - *TownyResources* addresses this issue by giving victorious nations a reward which is useful but which defenders will not miss as much as money or sets.
+   - The general importance of geo-resources in strategy games is illustrated by this this quote from the *Civilization* series of games:
  <br> "***Resources are special commodities found in limited quantities on the map....are extremely important in the game, and the main reason for expansion and territorial wars" ([Civ V Wiki](https://civilization.fandom.com/wiki/Resources_(Civ5)))***
 
 -----------

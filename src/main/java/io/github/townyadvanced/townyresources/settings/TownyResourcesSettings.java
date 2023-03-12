@@ -1,24 +1,32 @@
 package io.github.townyadvanced.townyresources.settings;
 
-import java.io.File;
-import java.util.*;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import com.palmergames.bukkit.config.CommentedConfiguration;
 import com.palmergames.bukkit.towny.exceptions.TownyException;
+import com.palmergames.util.FileMgmt;
+
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
 import io.github.townyadvanced.townyresources.TownyResources;
 import io.github.townyadvanced.townyresources.objects.ResourceExtractionCategory;
 import io.github.townyadvanced.townyresources.objects.ResourceOfferCategory;
-import io.github.townyadvanced.townyresources.util.FileMgmt;
+import io.github.townyadvanced.townyresources.util.MMOItemsUtil;
+import io.github.townyadvanced.townyresources.util.MythicMobsUtil;
+
 import org.bukkit.Material;
-import org.bukkit.inventory.ItemStack;
 
 public class TownyResourcesSettings {
 	private static CommentedConfiguration config, newConfig;
 	private static int sumOfAllOfferDiscoveryProbabilityWeights = 0;  //Used when getting the resource offers
-	    
+	private static Path configPath = TownyResources.getPlugin().getDataFolder().toPath().resolve("config.yml");
+
 	public static boolean isEnabled() {
 		return getBoolean(TownyResourcesConfigNodes.ENABLED);
 	}
@@ -203,26 +211,30 @@ public class TownyResourcesSettings {
 				return true;  //Known material 
 		}
 		// mythicmobs integration
-		if (TownyResources.getPlugin().isMythicMobsInstalled()) {
-			ItemStack mythicItem = TownyResources.getPlugin().getMythicItemManager().getItemStack(materialName);
-			if (mythicItem != null)
-				return true;  // Known material
-		}
+		if (TownyResources.getPlugin().isMythicMobsInstalled() 
+		&& MythicMobsUtil.isValidItem(materialName))
+			return true;
+		
+		// MMOItems integration
+		if (TownyResources.getPlugin().isMMOItemsInstalled()
+		&& materialName.contains(":")
+		&& MMOItemsUtil.isValidItem(materialName))
+			return true;
+
 		return false; //Unknown material		
 	}
 	
-	public static void loadConfig(String filepath, String version) throws TownyException{
-		if (FileMgmt.checkOrCreateFile(filepath)) {
-			File file = new File(filepath);
-
-			// read the config.yml into memory
-			config = new CommentedConfiguration(file.toPath());
-			if (!config.load())
-				throw new TownyException("Failed to load Config!");
-
-			setDefaults(version, file);
-			config.save();
+	public static void loadConfig() throws TownyException {
+		if (!FileMgmt.checkOrCreateFile(configPath.toString())) {
+			throw new TownyException("Failed to create config file!");
 		}
+		
+		config = new CommentedConfiguration(configPath);
+		if (!config.load())
+			throw new TownyException("Failed to load Config!");
+
+		setDefaults(TownyResources.getPlugin().getVersion(), configPath);
+		config.save();
 	}
 
 	public static void addComment(String root, String... comments) {
@@ -244,8 +256,8 @@ public class TownyResourcesSettings {
 	/**
 	 * Builds a new config reading old config data.
 	 */
-	private static void setDefaults(String version, File file) {
-		newConfig = new CommentedConfiguration(file.toPath());
+	private static void setDefaults(String version, Path configPath) {
+		newConfig = new CommentedConfiguration(configPath);
 		newConfig.load();
 
 		for (TownyResourcesConfigNodes root : TownyResourcesConfigNodes.values()) {
@@ -300,6 +312,10 @@ public class TownyResourcesSettings {
 		return config.getString(node.getRoot().toLowerCase(), node.getDefault());
 	}
 
+	private static List<String> getStrArr(TownyResourcesConfigNodes node) {
+		return Arrays.stream(getString(node).split(",")).collect(Collectors.toList());
+	}
+	
 	/**
      * Return an IMMUTABLE list of integers
 	 */
@@ -372,7 +388,19 @@ public class TownyResourcesSettings {
 		return getInt(TownyResourcesConfigNodes.RESOURCE_EXTRACTION_LIMITS_COOLDOWN_AFTER_DAILY_LIMIT_WARNING_MESSAGE_MILLIS);
 	}
 
+	public static boolean isUnbreakableWhenExtractionLimitHit(String material) {
+		return getStrArr(TownyResourcesConfigNodes.RESOURCE_EXTRACTION_LIMITS_UNBREAKABLES).contains(material);
+	}
+
+	public static boolean isNonDynamicAmountMaterial(String material) {
+		return getStrArr(TownyResourcesConfigNodes.TOWN_RESOURCES_OFFERS_MATERIALS_WITH_NON_DYNAMIC_AMMOUNTS).contains(material);
+	}
+	
 	public static String getMaterialsDisplayLanguage() {
 		return getString(TownyResourcesConfigNodes.TOWN_RESOURCES_LANGUAGE_MATERIALS_DISPLAY_LANGUAGE);
+	}
+
+	public static boolean areMMOItemsGivenLeveledTowardsThePlayer() {
+		return false; //getBoolean(TownyResourcesConfigNodes.TOWN_RESOURCES_OFFERS_MMOITEMS_PLAYER_LEVELED_ITEMS);
 	}
 }
